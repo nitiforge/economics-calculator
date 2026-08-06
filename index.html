@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Economics &amp; Finance Calculator</title>
+<style>
+  :root{
+    --bg:#101116;
+    --bg-alt:#0b0c10;
+    --panel:#17181f;
+    --panel-hi:#1d1f28;
+    --border:#282b35;
+    --border-soft:#20222b;
+    --text:#e9e7e0;
+    --text-dim:#8d8f9a;
+    --text-faint:#5c5e68;
+    --macro:#6f9fd8;
+    --micro:#7fb08c;
+    --finance:#c9974b;
+    --negative:#c2645f;
+    --serif:"Iowan Old Style","Palatino Linotype",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular","Berkeley Mono",Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+  body{
+    margin:0;
+    background:
+      linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 240px, var(--bg) 100%);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+  }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead{
+    max-width:1120px;
+    margin:0 auto;
+    padding:52px 28px 26px;
+    border-bottom:1px solid var(--border);
+  }
+  .brand-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .brand-link{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    transition:opacity 0.15s;
+  }
+  .brand-link:hover{opacity:0.75;}
+  .brand-mark{
+    width:30px;
+    height:30px;
+    flex-shrink:0;
+  }
+  .brand-mark svg{display:block; width:100%; height:100%;}
+  .foot .brand-mark-sm{
+    width:16px;
+    height:16px;
+    display:inline-block;
+    vertical-align:-3px;
+    margin-right:8px;
+  }
+  .foot .brand-mark-sm svg{display:block; width:100%; height:100%;}
+  .foot-brand{
+    display:flex;
+    align-items:center;
+    color:var(--text-dim);
+  }
+  .foot-brand b{color:var(--text); font-weight:600;}
+  .foot-brand-link{
+    display:inline-flex;
+    align-items:center;
+    color:var(--text-dim);
+    text-decoration:none;
+    transition:opacity 0.15s;
+  }
+  .foot-brand-link:hover{opacity:0.75;}
+  .brand-name{
+    font-family:var(--serif);
+    font-size:15px;
+    letter-spacing:0.01em;
+    color:var(--text);
+  }
+  .brand-name b{font-weight:600;}
+  .kicker{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+  .kicker span::before{content:"— ";}
+  .masthead h1{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:clamp(30px,4.2vw,46px);
+    line-height:1.08;
+    margin:0 0 12px;
+    letter-spacing:-0.01em;
+    max-width:16ch;
+  }
+  .masthead p{
+    font-size:15px;
+    line-height:1.6;
+    color:var(--text-dim);
+    max-width:58ch;
+    margin:0;
+  }
+  .stat-row{
+    display:flex;
+    gap:36px;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
+  .stat{
+    font-family:var(--mono);
+  }
+  .stat .n{
+    font-size:22px;
+    color:var(--text);
+    display:block;
+    line-height:1;
+  }
+  .stat .l{
+    font-size:10px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    display:block;
+    margin-top:6px;
+  }
+
+  /* ---------- TABS ---------- */
+  .tabs{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 28px;
+    display:flex;
+    gap:34px;
+    border-bottom:1px solid var(--border);
+    overflow-x:auto;
+  }
+  .tab-btn{
+    background:none;
+    border:none;
+    padding:18px 0 15px;
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    cursor:pointer;
+    position:relative;
+    white-space:nowrap;
+    transition:color 0.15s;
+  }
+  .tab-btn .count{
+    font-family:var(--mono);
+    font-weight:400;
+    font-size:11px;
+    color:var(--text-faint);
+    margin-left:6px;
+  }
+  .tab-btn::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:-1px;
+    height:2px;
+    background:transparent;
+    transition:background 0.15s;
+  }
+  .tab-btn.active{color:var(--text);}
+  .tab-btn[data-cat="macro"].active::after{background:var(--macro);}
+  .tab-btn[data-cat="micro"].active::after{background:var(--micro);}
+  .tab-btn[data-cat="finance"].active::after{background:var(--finance);}
+  .tab-btn:hover{color:var(--text);}
+
+  /* ---------- GRID ---------- */
+  main{
+    max-width:1120px;
+    margin:0 auto;
+    padding:36px 28px 70px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:1px;
+    background:var(--border-soft);
+    border:1px solid var(--border-soft);
+  }
+  .hidden{display:none !important;}
+
+  /* ---------- CARD ---------- */
+  .card{
+    background:var(--panel);
+    padding:22px 22px 24px;
+    border-left:3px solid transparent;
+    display:flex;
+    flex-direction:column;
+  }
+  .card[data-cat="macro"]{border-left-color:var(--macro);}
+  .card[data-cat="micro"]{border-left-color:var(--micro);}
+  .card[data-cat="finance"]{border-left-color:var(--finance);}
+
+  .card-head{
+    margin-bottom:12px;
+  }
+  .idx{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    color:var(--text-faint);
+    display:block;
+    margin-bottom:6px;
+  }
+  .card h3{
+    font-family:var(--serif);
+    font-size:18px;
+    font-weight:500;
+    margin:0 0 3px;
+    color:var(--text);
+    line-height:1.25;
+  }
+  .card .subtitle{
+    font-size:12px;
+    color:var(--text-dim);
+    margin:0;
+  }
+  .formula{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-dim);
+    line-height:1.6;
+    margin:12px 0 16px;
+    padding:10px 12px;
+    background:var(--bg-alt);
+    border:1px solid var(--border-soft);
+  }
+
+  .field-row{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    margin-bottom:14px;
+  }
+  .field-row label{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--text-dim);
+    display:flex;
+    justify-content:space-between;
+    letter-spacing:0.01em;
+  }
+  .field-row label .unit{
+    font-weight:400;
+    color:var(--text-faint);
+    font-family:var(--mono);
+    font-size:10.5px;
+  }
+  .field-row input, .field-row select{
+    font-family:var(--mono);
+    font-size:14.5px;
+    padding:8px 2px;
+    border:none;
+    border-bottom:1px solid var(--border);
+    background:transparent;
+    color:var(--text);
+    border-radius:0;
+  }
+  .field-row input:focus, .field-row select:focus{
+    outline:none;
+    border-bottom-color:var(--text);
+  }
+  .field-row input::placeholder{color:var(--text-faint);}
+
+  .calc-btn{
+    margin-top:6px;
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:11.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:11px 14px;
+    cursor:pointer;
+    transition:background 0.15s, border-color 0.15s;
+  }
+  .card[data-cat="macro"] .calc-btn:hover{background:var(--macro); border-color:var(--macro); color:#0d1520;}
+  .card[data-cat="micro"] .calc-btn:hover{background:var(--micro); border-color:var(--micro); color:#0d1520;}
+  .card[data-cat="finance"] .calc-btn:hover{background:var(--finance); border-color:var(--finance); color:#0d1520;}
+
+  /* ---------- OUTPUT ---------- */
+  .output-zone{ margin-top:16px; }
+  .output{
+    border-top:1px solid var(--border);
+    padding-top:14px;
+    animation:rise 0.22s ease-out;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(6px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .output .o-label{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-bottom:6px;
+  }
+  .output .o-value{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:600;
+    color:var(--text);
+    line-height:1.2;
+    word-break:break-word;
+  }
+  .card[data-cat="macro"] .output .o-value{color:var(--macro);}
+  .card[data-cat="micro"] .output .o-value{color:var(--micro);}
+  .card[data-cat="finance"] .output .o-value{color:var(--finance);}
+  .output .o-value.negative{color:var(--negative) !important;}
+  .output .o-detail{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-dim);
+    line-height:1.7;
+    margin-top:10px;
+    white-space:pre-line;
+  }
+  .output.error .o-label{color:var(--negative);}
+  .output.error .o-value{font-size:14px; font-weight:400; color:var(--text-dim) !important;}
+
+  /* ---------- FOOTER ---------- */
+  .foot{
+    max-width:1120px;
+    margin:0 auto;
+    padding:24px 28px 40px;
+    border-top:1px solid var(--border);
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-faint);
+    letter-spacing:0.02em;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:600px){
+    .masthead{padding:36px 20px 20px;}
+    main{padding:28px 20px 50px;}
+    .foot{padding:20px 20px 32px;}
+  }
+</style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="brand-row">
+      <a href="https://nitiforge.github.io/niti-forge-tech/" target="_blank" rel="noopener" class="brand-link" aria-label="Visit NitiForge website">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="15" width="6" height="12" fill="#8d8f9a"/>
+            <rect x="12" y="9" width="6" height="18" fill="#6f9fd8"/>
+            <rect x="21" y="3" width="6" height="24" fill="#c9974b"/>
+          </svg>
+        </div>
+        <span class="brand-name"><b>NitiForge</b> — Economics &amp; Finance Tools</span>
+      </a>
+    </div>
+    <div class="kicker">
+      <span>Niti Pathshala</span>
+      <span>Macro · Micro · Personal Finance</span>
+      <span id="issueDate">—</span>
+    </div>
+    <h1>Master Economics &amp; Finance Calculator</h1>
+    <p>A reference-grade toolkit of exam formulas and financial models — built for UPSC/MPSC economics preparation and everyday money decisions, with the exact working shown for every result.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="n">18</span><span class="l">Calculators</span></div>
+      <div class="stat"><span class="n">03</span><span class="l">Domains</span></div>
+      <div class="stat"><span class="n">FY 25–26</span><span class="l">Tax Slabs Used</span></div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-cat="macro">Macroeconomics <span class="count">09</span></button>
+    <button class="tab-btn" data-cat="micro">Microeconomics <span class="count">02</span></button>
+    <button class="tab-btn" data-cat="finance">Personal Finance <span class="count">07</span></button>
+  </nav>
+
+  <main><div class="grid" id="grid"></div></main>
+
+  <p class="foot">
+    <span class="foot-brand">
+      <a href="https://nitiforge.github.io/niti-forge-tech/" target="_blank" rel="noopener" class="foot-brand-link">
+        <span class="brand-mark-sm" aria-hidden="true">
+          <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="15" width="6" height="12" fill="#8d8f9a"/>
+            <rect x="12" y="9" width="6" height="18" fill="#6f9fd8"/>
+            <rect x="21" y="3" width="6" height="24" fill="#c9974b"/>
+          </svg>
+        </span>Built by <b>NitiForge</b></a> · Niti Pathshala · @durgesh_borse26
+    </span>
+    <span>Results are for study and estimation only — verify against official sources before relying on them.</span>
+  </p>
+
+<script>
+(function(){
+
+  // ---------- helpers ----------
+  function num(v){ const n = parseFloat(v); return isNaN(n) ? null : n; }
+  function fmtINR(n){
+    if(n===null||n===undefined||!isFinite(n)) return '—';
+    const sign = n<0 ? '−' : '';
+    return sign + '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+  }
+  function fmtNum(n,d){
+    if(n===null||n===undefined||!isFinite(n)) return '—';
+    d = d===undefined?2:d;
+    return n.toLocaleString('en-IN',{minimumFractionDigits:d, maximumFractionDigits:d});
+  }
+
+  // ---------- calculator config ----------
+  const CALCULATORS = [
+    // ===================== MACROECONOMICS =====================
+    {
+      id:'gdp-deflator', cat:'macro', idx:'M · 01',
+      title:'GDP Deflator & Real GDP', sub:'Nominal to real conversion',
+      formula:'Real GDP = (Nominal GDP ÷ GDP Deflator) × 100',
+      inputs:[
+        {id:'nominal', label:'Nominal GDP', unit:'₹ crore', ph:'2500000'},
+        {id:'deflator', label:'GDP Deflator', unit:'index, base=100', ph:'135'}
+      ],
+      compute(v){
+        if(!v.nominal || !v.deflator) return {err:'Enter both values.'};
+        if(v.deflator<=0) return {err:'Deflator must be greater than zero.'};
+        const real = (v.nominal/v.deflator)*100;
+        return { label:'Real GDP', value: fmtINR(real)+' crore',
+          detail:`Nominal ₹${fmtNum(v.nominal,0)} Cr ÷ Deflator ${v.deflator} × 100\nThe GDP deflator is the broadest inflation measure — it covers all goods and services produced domestically, unlike CPI which tracks a fixed consumer basket.` };
+      }
+    },
+    {
+      id:'inflation', cat:'macro', idx:'M · 02',
+      title:'Inflation Rate', sub:'CPI / WPI index method',
+      formula:'Inflation % = (Indexₜ − Indexₜ₋₁) ÷ Indexₜ₋₁ × 100',
+      inputs:[
+        {id:'curr', label:'Current period index', unit:'', ph:'187.4'},
+        {id:'prev', label:'Base period index', unit:'', ph:'179.8'}
+      ],
+      compute(v){
+        if(!v.curr || !v.prev) return {err:'Enter both index values.'};
+        if(v.prev<=0) return {err:'Base index must be greater than zero.'};
+        const infl = ((v.curr-v.prev)/v.prev)*100;
+        return { label:'Inflation Rate', value: fmtNum(infl,2)+' %',
+          detail:`(${v.curr} − ${v.prev}) ÷ ${v.prev} × 100\nSame formula for CPI (retail) and WPI (wholesale) — only the underlying index differs. India's headline inflation target is CPI-based.` };
+      }
+    },
+    {
+      id:'fiscal-deficit', cat:'macro', idx:'M · 03',
+      title:'Fiscal, Revenue & Primary Deficit', sub:'Union budget deficit indicators',
+      formula:'FD = Total Expenditure − Total Receipts (excl. borrowings)   ·   PD = FD − Interest Payments',
+      inputs:[
+        {id:'totExp', label:'Total expenditure', unit:'₹ crore', ph:'4500000'},
+        {id:'totRec', label:'Total receipts, excl. borrowings', unit:'₹ crore', ph:'3200000'},
+        {id:'revExp', label:'Revenue expenditure', unit:'₹ crore', ph:'3700000'},
+        {id:'revRec', label:'Revenue receipts', unit:'₹ crore', ph:'3000000'},
+        {id:'interest', label:'Interest payments', unit:'₹ crore', ph:'1100000'},
+        {id:'gdp', label:'Nominal GDP', unit:'₹ crore', ph:'32000000'}
+      ],
+      compute(v){
+        const req=['totExp','totRec','revExp','revRec','interest','gdp'];
+        for(const k of req){ if(v[k]===null) return {err:'Fill in all six values.'}; }
+        if(v.gdp<=0) return {err:'GDP must be greater than zero.'};
+        const fd = v.totExp-v.totRec, fdPct=(fd/v.gdp)*100, rd=v.revExp-v.revRec, pd=fd-v.interest;
+        return { label:'Fiscal Deficit', value: fmtINR(fd)+' crore  ('+fmtNum(fdPct,2)+'% of GDP)',
+          detail:`Revenue Deficit = ${fmtINR(rd)} crore\nPrimary Deficit = ${fmtINR(pd)} crore\nFD funds both capital formation and interest obligations; PD isolates the deficit net of past borrowing costs.` };
+      }
+    },
+    {
+      id:'per-capita', cat:'macro', idx:'M · 04',
+      title:'Per Capita Income', sub:'National income ÷ population',
+      formula:'PCI = National Income ÷ Population',
+      inputs:[
+        {id:'ni', label:'National income', unit:'₹ crore', ph:'19500000'},
+        {id:'pop', label:'Population', unit:'crore', ph:'143.5'}
+      ],
+      compute(v){
+        if(!v.ni || !v.pop) return {err:'Enter both values.'};
+        if(v.pop<=0) return {err:'Population must be greater than zero.'};
+        const pci = v.ni/v.pop;
+        return { label:'Per Capita Income', value: fmtINR(pci)+' / year',
+          detail:`${fmtNum(v.ni,0)} Cr ÷ ${v.pop} Cr people\nOfficial estimates typically use Net National Income at factor cost — check which base year's constant prices are being used before comparing across years.` };
+      }
+    },
+    {
+      id:'money-multiplier', cat:'macro', idx:'M · 05',
+      title:'Money Multiplier & Credit Creation', sub:'CRR-based deposit expansion',
+      formula:'Money Multiplier = 1 ÷ CRR   ·   Total Credit = Initial Deposit × Multiplier',
+      inputs:[
+        {id:'crr', label:'Cash Reserve Ratio', unit:'%', ph:'4.5'},
+        {id:'deposit', label:'Initial deposit', unit:'₹', ph:'100000'}
+      ],
+      compute(v){
+        if(!v.crr || v.deposit===null) return {err:'Enter both values.'};
+        if(v.crr<=0) return {err:'CRR must be greater than zero.'};
+        const mm = 1/(v.crr/100), credit = v.deposit*mm;
+        return { label:'Total Credit Created', value: fmtINR(credit),
+          detail:`Multiplier = 1 ÷ ${v.crr}% = ${fmtNum(mm,2)}×\n${fmtINR(v.deposit)} × ${fmtNum(mm,2)} = ${fmtINR(credit)}\nSimplified model — ignores SLR, currency drain, and excess reserves held by banks.` };
+      }
+    },
+    {
+      id:'real-interest', cat:'macro', idx:'M · 06',
+      title:'Real Interest Rate', sub:'Fisher equation, exact form',
+      formula:'(1 + Real) = (1 + Nominal) ÷ (1 + Inflation)',
+      inputs:[
+        {id:'nominal', label:'Nominal interest rate', unit:'%', ph:'7'},
+        {id:'inflation', label:'Inflation rate', unit:'%', ph:'4.2'}
+      ],
+      compute(v){
+        if(v.nominal===null||v.inflation===null) return {err:'Enter both rates.'};
+        const exact = ((1+v.nominal/100)/(1+v.inflation/100)-1)*100;
+        const approx = v.nominal-v.inflation;
+        return { label:'Real Interest Rate (exact)', value: fmtNum(exact,2)+' %',
+          detail:`Approximation (Nominal − Inflation) = ${fmtNum(approx,2)}%\nThe approximation only holds well at low inflation — always use the exact Fisher form when precision is asked for.` };
+      }
+    },
+    {
+      id:'national-income', cat:'macro', idx:'M · 07',
+      title:'GDP → GNP → NNP → NDP', sub:'National income aggregates',
+      formula:'GNP = GDP + NFIA   ·   NNP = GNP − Depreciation   ·   NDP = GDP − Depreciation',
+      inputs:[
+        {id:'gdp', label:'GDP', unit:'₹ crore', ph:'32000000'},
+        {id:'nfia', label:'Net Factor Income from Abroad', unit:'₹ crore, +/−', ph:'-15000'},
+        {id:'dep', label:'Depreciation', unit:'₹ crore', ph:'2400000'}
+      ],
+      compute(v){
+        if(v.gdp===null||v.nfia===null||v.dep===null) return {err:'Fill in all three values.'};
+        const gnp=v.gdp+v.nfia, nnp=gnp-v.dep, ndp=v.gdp-v.dep;
+        return { label:'GNP', value: fmtINR(gnp)+' crore',
+          detail:`NNP = ${fmtINR(nnp)} crore\nNDP = ${fmtINR(ndp)} crore\nNNP at factor cost is what national income statistics commonly report as "National Income."` };
+      }
+    },
+    {
+      id:'keynesian-multiplier', cat:'macro', idx:'M · 08',
+      title:'Keynesian Investment Multiplier', sub:'Change in income from a spending shock',
+      formula:'k = 1 ÷ (1 − MPC)   ·   ΔY = k × ΔI',
+      inputs:[
+        {id:'mpc', label:'Marginal Propensity to Consume', unit:'0–1', ph:'0.8'},
+        {id:'di', label:'Change in investment (ΔI)', unit:'₹ crore', ph:'10000'}
+      ],
+      compute(v){
+        if(v.mpc===null||v.di===null) return {err:'Enter both values.'};
+        if(v.mpc<=0||v.mpc>=1) return {err:'MPC must be between 0 and 1.'};
+        const k = 1/(1-v.mpc), dy = k*v.di, mps = 1-v.mpc;
+        return { label:'Change in National Income (ΔY)', value: fmtINR(dy)+' crore',
+          detail:`Multiplier k = 1 ÷ (1 − ${v.mpc}) = ${fmtNum(k,2)}×\nMPS (savings) = ${fmtNum(mps,2)}\nHigher MPC → higher multiplier — more of each rupee is respent rather than saved.` };
+      }
+    },
+    {
+      id:'current-account', cat:'macro', idx:'M · 09',
+      title:'Current Account Balance', sub:'Balance of payments component',
+      formula:'CAB = Exports − Imports + Net Income + Net Transfers',
+      inputs:[
+        {id:'exports', label:'Exports of goods & services', unit:'$ million', ph:'450000'},
+        {id:'imports', label:'Imports of goods & services', unit:'$ million', ph:'675000'},
+        {id:'netIncome', label:'Net income from abroad', unit:'$ million, +/−', ph:'-8000'},
+        {id:'netTransfers', label:'Net current transfers', unit:'$ million, +/−', ph:'110000'}
+      ],
+      compute(v){
+        const req=['exports','imports','netIncome','netTransfers'];
+        for(const k of req){ if(v[k]===null) return {err:'Fill in all four values.'}; }
+        const cab = v.exports-v.imports+v.netIncome+v.netTransfers;
+        return { label:'Current Account Balance', value:(cab<0?'−':'')+'$'+fmtNum(Math.abs(cab),0)+' million'+(cab<0?' (deficit)':' (surplus)'), negative: cab<0,
+          detail:`Trade balance = ${fmtNum(v.exports-v.imports,0)}\nCAB deficit means the country is a net borrower from the rest of the world in that period; it must be financed by the capital/financial account.` };
+      }
+    },
+
+    // ===================== MICROECONOMICS =====================
+    {
+      id:'elasticity', cat:'micro', idx:'m · 01',
+      title:'Price Elasticity of Demand', sub:'Midpoint (arc) method',
+      formula:'Ed = [ΔQ ÷ avg(Q)] ÷ [ΔP ÷ avg(P)]',
+      inputs:[
+        {id:'q1', label:'Initial quantity', unit:'units', ph:'100'},
+        {id:'q2', label:'New quantity', unit:'units', ph:'80'},
+        {id:'p1', label:'Initial price', unit:'₹', ph:'50'},
+        {id:'p2', label:'New price', unit:'₹', ph:'60'}
+      ],
+      compute(v){
+        const req=['q1','q2','p1','p2'];
+        for(const k of req){ if(v[k]===null) return {err:'Fill in all four values.'}; }
+        if(v.q1+v.q2===0 || v.p1+v.p2===0) return {err:'Values cannot sum to zero.'};
+        const pctQ = (v.q2-v.q1)/((v.q2+v.q1)/2);
+        const pctP = (v.p2-v.p1)/((v.p2+v.p1)/2);
+        if(pctP===0) return {err:'Price must change to compute elasticity.'};
+        const e = pctQ/pctP;
+        const abs = Math.abs(e);
+        const label = abs>1.02 ? 'Elastic' : abs<0.98 ? 'Inelastic' : 'Unit elastic';
+        return { label:'Price Elasticity of Demand', value: fmtNum(e,2)+'  ('+label+')',
+          detail:`%ΔQ = ${fmtNum(pctQ*100,2)}%,  %ΔP = ${fmtNum(pctP*100,2)}%\nMidpoint method avoids the asymmetry of simple % change and gives the same result whether price rises or falls.` };
+      }
+    },
+    {
+      id:'break-even', cat:'micro', idx:'m · 02',
+      title:'Break-Even Analysis', sub:'Cost-volume-profit',
+      formula:'BEP (units) = Fixed Costs ÷ (Price − Variable Cost per unit)',
+      inputs:[
+        {id:'fc', label:'Fixed costs', unit:'₹', ph:'500000'},
+        {id:'price', label:'Selling price per unit', unit:'₹', ph:'250'},
+        {id:'vc', label:'Variable cost per unit', unit:'₹', ph:'150'}
+      ],
+      compute(v){
+        if(v.fc===null||v.price===null||v.vc===null) return {err:'Fill in all three values.'};
+        const cm = v.price-v.vc;
+        if(cm<=0) return {err:'Price must exceed variable cost per unit.'};
+        const bepUnits = v.fc/cm, bepRevenue = bepUnits*v.price;
+        return { label:'Break-Even Point', value: fmtNum(bepUnits,0)+' units',
+          detail:`Contribution margin = ₹${fmtNum(cm,2)} per unit\nBreak-even revenue = ${fmtINR(bepRevenue)}\nBelow this volume the business runs at a loss; above it, every extra unit adds ₹${fmtNum(cm,2)} to profit.` };
+      }
+    },
+
+    // ===================== PERSONAL FINANCE =====================
+    {
+      id:'sip', cat:'finance', idx:'F · 01',
+      title:'SIP Future Value', sub:'Systematic Investment Plan',
+      formula:'FV = P × [((1+r)ⁿ − 1) ÷ r] × (1+r)',
+      inputs:[
+        {id:'p', label:'Monthly investment', unit:'₹', ph:'5000'},
+        {id:'rate', label:'Expected annual return', unit:'%', ph:'12'},
+        {id:'years', label:'Tenure', unit:'years', ph:'15'}
+      ],
+      compute(v){
+        if(!v.p||!v.rate||!v.years) return {err:'Fill in all three values.'};
+        const r=v.rate/12/100, n=v.years*12;
+        const fv = v.p*((Math.pow(1+r,n)-1)/r)*(1+r);
+        const invested = v.p*n, gains=fv-invested;
+        return { label:'Maturity Value', value: fmtINR(fv),
+          detail:`Total invested = ${fmtINR(invested)}\nWealth gained = ${fmtINR(gains)}\n${n} instalments at a monthly rate of ${fmtNum(r*100,3)}%` };
+      }
+    },
+    {
+      id:'emi', cat:'finance', idx:'F · 02',
+      title:'Loan EMI', sub:'Equated monthly instalment',
+      formula:'EMI = P × r × (1+r)ⁿ ÷ [(1+r)ⁿ − 1]',
+      inputs:[
+        {id:'p', label:'Loan amount', unit:'₹', ph:'2500000'},
+        {id:'rate', label:'Annual interest rate', unit:'%', ph:'8.5'},
+        {id:'years', label:'Tenure', unit:'years', ph:'20'}
+      ],
+      compute(v){
+        if(!v.p||!v.rate||!v.years) return {err:'Fill in all three values.'};
+        const r=v.rate/12/100, n=v.years*12;
+        const emi = v.p*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+        const totalPay = emi*n, totalInt = totalPay-v.p;
+        return { label:'Monthly EMI', value: fmtINR(emi)+' / month',
+          detail:`Total repayment = ${fmtINR(totalPay)}\nTotal interest = ${fmtINR(totalInt)}\n${n} instalments` };
+      }
+    },
+    {
+      id:'compound', cat:'finance', idx:'F · 03',
+      title:'Compound Interest / FD', sub:'Fixed deposit maturity',
+      formula:'A = P × (1 + r/n)^(n×t)',
+      inputs:[
+        {id:'p', label:'Principal', unit:'₹', ph:'100000'},
+        {id:'rate', label:'Annual interest rate', unit:'%', ph:'7.1'},
+        {id:'freq', label:'Compounding frequency', unit:'per year', ph:'4'},
+        {id:'years', label:'Tenure', unit:'years', ph:'5'}
+      ],
+      compute(v){
+        if(!v.p||!v.rate||!v.freq||!v.years) return {err:'Fill in all four values.'};
+        const A = v.p*Math.pow(1+(v.rate/100)/v.freq, v.freq*v.years);
+        return { label:'Maturity Amount', value: fmtINR(A),
+          detail:`Interest earned = ${fmtINR(A-v.p)}\nCompounded ${v.freq}× per year over ${v.years} years` };
+      }
+    },
+    {
+      id:'income-tax', cat:'finance', idx:'F · 04',
+      title:'Income Tax Estimate', sub:'New regime, FY 2025-26 slabs',
+      formula:'0–4L nil · 4–8L 5% · 8–12L 10% · 12–16L 15% · 16–20L 20% · 20–24L 25% · 24L+ 30%',
+      inputs:[
+        {id:'gross', label:'Annual gross income', unit:'₹', ph:'1500000'},
+        {id:'salaried', label:'Salaried (1=yes, 0=no)', unit:'std. deduction ₹75,000', ph:'1'}
+      ],
+      compute(v){
+        if(v.gross===null) return {err:'Enter your income.'};
+        const stdDed = v.salaried ? 75000 : 0;
+        const taxable = Math.max(0, v.gross-stdDed);
+        const slabs = [[400000,0],[400000,0.05],[400000,0.10],[400000,0.15],[400000,0.20],[400000,0.25],[Infinity,0.30]];
+        let remaining=taxable, tax=0;
+        for(const [width,rate] of slabs){
+          if(remaining<=0) break;
+          const chunk = Math.min(width,remaining);
+          tax += chunk*rate;
+          remaining -= chunk;
+        }
+        let netTax;
+        if(taxable<=1200000){ netTax=0; } else { netTax = Math.min(tax, taxable-1200000); }
+        const cess = netTax*0.04, totalTax = netTax+cess;
+        return { label:'Total Tax Payable (incl. cess)', value: fmtINR(totalTax),
+          detail:`Taxable income = ${fmtINR(taxable)}\nSlab tax before rebate = ${fmtINR(tax)}\n${taxable<=1200000?'Section 87A rebate applies — tax reduced to nil':'Marginal relief capped at income over ₹12L'}\n4% Health & Education Cess included` };
+      }
+    },
+    {
+      id:'real-return', cat:'finance', idx:'F · 05',
+      title:'Inflation-Adjusted Real Return', sub:'True purchasing-power gain',
+      formula:'(1 + Real) = (1 + Nominal Return) ÷ (1 + Inflation)',
+      inputs:[
+        {id:'nominal', label:'Nominal return on investment', unit:'%', ph:'11'},
+        {id:'inflation', label:'Current inflation', unit:'%', ph:'5.5'}
+      ],
+      compute(v){
+        if(v.nominal===null||v.inflation===null) return {err:'Enter both rates.'};
+        const real = ((1+v.nominal/100)/(1+v.inflation/100)-1)*100;
+        return { label:'Real Return', value: fmtNum(real,2)+' %', negative: real<0,
+          detail:`On ₹1,00,000 invested for a year, real value changes by ${fmtINR(100000*real/100)}\nIf inflation exceeds the nominal return, the real return turns negative even though the account balance grew.` };
+      }
+    },
+    {
+      id:'cagr', cat:'finance', idx:'F · 06',
+      title:'CAGR', sub:'Compound Annual Growth Rate',
+      formula:'CAGR = [(End Value ÷ Begin Value)^(1/n) − 1] × 100',
+      inputs:[
+        {id:'begin', label:'Beginning value', unit:'₹', ph:'100000'},
+        {id:'end', label:'Ending value', unit:'₹', ph:'250000'},
+        {id:'years', label:'Number of years', unit:'years', ph:'7'}
+      ],
+      compute(v){
+        if(!v.begin||!v.end||!v.years) return {err:'Fill in all three values.'};
+        if(v.begin<=0) return {err:'Beginning value must be greater than zero.'};
+        const cagr = (Math.pow(v.end/v.begin, 1/v.years)-1)*100;
+        return { label:'CAGR', value: fmtNum(cagr,2)+' %',
+          detail:`(${fmtINR(v.end)} ÷ ${fmtINR(v.begin)})^(1/${v.years}) − 1\nCAGR smooths a multi-year journey into one annual rate — it hides any volatility that happened along the way.` };
+      }
+    },
+    {
+      id:'npv', cat:'finance', idx:'F · 07',
+      title:'Net Present Value', sub:'Uniform annual cash flow',
+      formula:'NPV = −Initial Outlay + CF × [(1 − (1+r)⁻ⁿ) ÷ r]',
+      inputs:[
+        {id:'initial', label:'Initial outlay', unit:'₹', ph:'1000000'},
+        {id:'cf', label:'Annual cash flow', unit:'₹', ph:'220000'},
+        {id:'rate', label:'Discount rate', unit:'%', ph:'10'},
+        {id:'years', label:'Number of years', unit:'years', ph:'7'}
+      ],
+      compute(v){
+        if(v.initial===null||!v.cf||!v.rate||!v.years) return {err:'Fill in all four values.'};
+        const r=v.rate/100, n=v.years;
+        const pvAnnuity = v.cf*((1-Math.pow(1+r,-n))/r);
+        const npv = pvAnnuity-v.initial;
+        return { label:'Net Present Value', value: fmtINR(npv), negative: npv<0,
+          detail:`PV of cash flows = ${fmtINR(pvAnnuity)}\n${npv>=0 ? 'Positive NPV — the project creates value at this discount rate.' : 'Negative NPV — the project destroys value at this discount rate.'}` };
+      }
+    }
+  ];
+
+  // ---------- render ----------
+  const grid = document.getElementById('grid');
+
+  function renderCard(cfg){
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.dataset.cat = cfg.cat;
+
+    const inputsHtml = cfg.inputs.map(f => `
+      <div class="field-row">
+        <label for="${cfg.id}-${f.id}">${f.label} <span class="unit">${f.unit}</span></label>
+        <input type="number" step="any" id="${cfg.id}-${f.id}" placeholder="${f.ph}">
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="idx">${cfg.idx}</span>
+        <h3>${cfg.title}</h3>
+        <p class="subtitle">${cfg.sub}</p>
+      </div>
+      <p class="formula">${cfg.formula}</p>
+      ${inputsHtml}
+      <button class="calc-btn" type="button">Calculate</button>
+      <div class="output-zone"></div>
+    `;
+
+    const btn = card.querySelector('.calc-btn');
+    const zone = card.querySelector('.output-zone');
+
+    btn.addEventListener('click', () => {
+      const v = {};
+      cfg.inputs.forEach(f => { v[f.id] = num(document.getElementById(`${cfg.id}-${f.id}`).value); });
+      const result = cfg.compute(v);
+      if(result.err){
+        zone.innerHTML = `
+          <div class="output error">
+            <div class="o-label">Cannot calculate</div>
+            <div class="o-value">${result.err}</div>
+          </div>`;
+      } else {
+        zone.innerHTML = `
+          <div class="output">
+            <div class="o-label">${result.label}</div>
+            <div class="o-value${result.negative?' negative':''}">${result.value}</div>
+            <div class="o-detail">${result.detail}</div>
+          </div>`;
+      }
+    });
+
+    return card;
+  }
+
+  function renderGrid(cat){
+    grid.innerHTML = '';
+    CALCULATORS.filter(c => c.cat === cat).forEach(cfg => grid.appendChild(renderCard(cfg)));
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid(btn.dataset.cat);
+    });
+  });
+
+  const today = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('issueDate').textContent = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+
+  renderGrid('macro');
+
+})();
+</script>
+</body>
+</html>
